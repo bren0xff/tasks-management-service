@@ -1,0 +1,12 @@
+server:
+  port: ":8080"
+
+database:
+  host: "mysql"
+  port: 3306
+  user: "root"
+  password: "password"
+  dbname: "maintenance"
+
+rabbitmq:
+  url: "amqp://guest:guest@rabbitmq:5672/"
