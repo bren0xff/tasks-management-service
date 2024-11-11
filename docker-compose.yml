@@ -1,0 +1,55 @@
+services:
+  api:
+    build:
+      context: docker
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT}:8080"
+    depends_on:
+      - mysql
+      - rabbitmq
+    env_file:
+      - .env
+    environment:
+      - MYSQL_DSN=${MYSQL_DSN}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tasks
+      MYSQL_USER: managementUser
+      MYSQL_PASSWORD: managementPassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: managementUser
+      RABBITMQ_DEFAULT_PASS: managementPassword
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  rabbitmq_data:

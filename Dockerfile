@@ -3,6 +3,6 @@ WORKDIR /app
 COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
-COPY . .
+COPY docker .
 RUN go build -o main ./cmd/api/main.go
 CMD ["/app/main"]
