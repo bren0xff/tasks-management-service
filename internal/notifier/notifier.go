@@ -8,7 +8,7 @@ import (
 )
 
 type Notifier interface {
-	NotifyManager(task *entity.Task)
+	NotifyManager(user *entity.User, task *entity.Task)
 }
 
 type notifier struct {
@@ -19,8 +19,8 @@ func NewNotifier(q queue.Queue) Notifier {
 	return &notifier{q}
 }
 
-func (n *notifier) NotifyManager(task *entity.Task) {
-	message := fmt.Sprintf("The tech %d performed the task %d on date %s", task.UserID, task.ID, task.Date)
+func (n *notifier) NotifyManager(user *entity.User, task *entity.Task) {
+	message := fmt.Sprintf("The tech \"%s\" performed the task \"%s\" on date %s", user.Name, task.Summary, task.Date)
 	err := n.queue.Publish("notifications", []byte(message))
 	if err != nil {
 		log.Println("Failed to publish notification:", err)

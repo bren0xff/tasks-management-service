@@ -49,7 +49,7 @@ func (h *TaskHandler) CreateTask(c echo.Context) error {
 		UserID:  user.ID,
 	}
 
-	if err := h.taskUseCase.CreateTask(c.Request().Context(), &task, *user); err != nil {
+	if err := h.taskUseCase.CreateTask(c.Request().Context(), &task); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": err.Error(),
 		})

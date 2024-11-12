@@ -19,6 +19,14 @@ func (r *userRepository) CreateUser(ctx context.Context, user *entity.User) erro
 	return r.db.WithContext(ctx).Create(user).Error
 }
 
+func (r *userRepository) GetUserByID(ctx context.Context, id string) (*entity.User, error) {
+	var user entity.User
+	err := r.db.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
 func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	var user entity.User
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error

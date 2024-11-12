@@ -53,10 +53,13 @@ func main() {
 	}
 
 	taskRepo := repository.NewTaskRepository(db)
-	newNotifier := notifier.NewNotifier(q)
-	taskUseCase := usecase.NewTaskUseCase(taskRepo, newNotifier)
 	userRepo := repository.NewUserRepository(db)
+
+	newNotifier := notifier.NewNotifier(q)
+
+	taskUseCase := usecase.NewTaskUseCase(taskRepo, userRepo, newNotifier)
 	userUseCase := usecase.NewUserUseCase(userRepo, jwtSecret)
+
 	e := echo.New()
 
 	http.NewTaskHandler(e, taskUseCase, jwtSecret)
