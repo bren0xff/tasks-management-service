@@ -5,21 +5,60 @@ definitions:
       date:
         type: string
       id:
-        type: integer
+        type: string
       summary:
         type: string
       user_id:
-        type: integer
+        type: string
     type: object
   entity.User:
     properties:
       email:
         type: string
       id:
-        type: integer
+        type: string
       name:
         type: string
       role:
+        type: string
+    type: object
+  http.CreateTaskRequest:
+    properties:
+      date:
+        example: "2024-11-12"
+        type: string
+      summary:
+        example: Fix server issue
+        type: string
+    type: object
+  http.LoginRequest:
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      password:
+        example: securepassword
+        type: string
+    type: object
+  http.LoginResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  http.RegisterUserRequest:
+    properties:
+      email:
+        example: fulano.sobre@example.com
+        type: string
+      name:
+        example: Fulano
+        type: string
+      password:
+        example: securepassword
+        type: string
+      role:
+        example: technician
         type: string
     type: object
 host: localhost:8080
@@ -59,12 +98,12 @@ paths:
       - application/json
       description: Allows a technician to create a new task
       parameters:
-      - description: Task Data
+      - description: Task Input Data
         in: body
-        name: task
+        name: input
         required: true
         schema:
-          $ref: '#/definitions/entity.Task'
+          $ref: '#/definitions/http.CreateTaskRequest'
       produces:
       - application/json
       responses:
@@ -98,16 +137,14 @@ paths:
         name: credentials
         required: true
         schema:
-          additionalProperties:
-            type: string
-          type: object
+          $ref: '#/definitions/http.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: JWT Token
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/http.LoginResponse'
         "400":
           description: Bad Request
           schema:
@@ -127,12 +164,12 @@ paths:
       - application/json
       description: Creates a new user with a hashed password
       parameters:
-      - description: User Data
+      - description: User Data (excluding ID)
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/entity.User'
+          $ref: '#/definitions/http.RegisterUserRequest'
       produces:
       - application/json
       responses:
@@ -142,6 +179,11 @@ paths:
             $ref: '#/definitions/entity.User'
         "400":
           description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
           schema:
             additionalProperties: true
             type: object

@@ -1,9 +1,9 @@
 package entity
 
 type User struct {
-	ID       string `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Name     string `json:"name"`
-	Email    string `json:"email" gorm:"unique;not null"`
-	Password string `json:"-"`
-	Role     string `json:"role"`
+	ID       string `json:"id" gorm:"type:char(36);primaryKey"`
+	Name     string `json:"name" gorm:"type:varchar(255)"`
+	Email    string `json:"email" gorm:"type:varchar(255);unique;not null"`
+	Password string `json:"-" gorm:"type:varchar(255)"`
+	Role     string `json:"role" gorm:"type:varchar(50)"`
 }

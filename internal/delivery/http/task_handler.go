@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/google/uuid"
 	"net/http"
 	"tasksManagement/internal/entity"
 	"tasksManagement/internal/usecase"
@@ -26,22 +27,34 @@ func NewTaskHandler(e *echo.Echo, tu usecase.TaskUseCase, jwtSecret string) {
 // @Tags tasks
 // @Accept json
 // @Produce json
-// @Param task body entity.Task true "Task Data"
+// @Param input body CreateTaskRequest true "Task Input Data"
 // @Success 201 {object} entity.Task
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Router /tasks [post]
 // @Security BearerAuth
 func (h *TaskHandler) CreateTask(c echo.Context) error {
+	var input CreateTaskRequest
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid request data",
+		})
+	}
 	user := c.Get("user").(*entity.User)
-	var task entity.Task
-	if err := c.Bind(&task); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+
+	task := entity.Task{
+		ID:      uuid.New().String(),
+		Summary: input.Summary,
+		Date:    input.Date,
+		UserID:  user.ID,
 	}
-	task.UserID = user.ID
+
 	if err := h.taskUseCase.CreateTask(c.Request().Context(), &task); err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
 	}
+
 	return c.JSON(http.StatusCreated, task)
 }
 
@@ -62,4 +75,9 @@ func (h *TaskHandler) GetTasks(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, tasks)
+}
+
+type CreateTaskRequest struct {
+	Summary string `json:"summary" example:"Fix server issue"`
+	Date    string `json:"date" example:"2024-11-12"`
 }

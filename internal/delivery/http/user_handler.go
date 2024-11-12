@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/google/uuid"
 	"net/http"
 	"tasksManagement/internal/entity"
 	"tasksManagement/internal/usecase"
@@ -24,23 +25,20 @@ func NewUserHandler(e *echo.Echo, userUseCase usecase.UserUseCase) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body entity.User true "User Data (excluding ID)"
+// @Param user body RegisterUserRequest true "User Data (excluding ID)"
 // @Success 201 {object} entity.User
 // @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Failure 500 {object} map[string]interface{} "Internal Server Error"
 // @Router /users/register [post]
 func (h *UserHandler) RegisterUser(c echo.Context) error {
-	var user struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Role     string `json:"role"`
-	}
+	var user RegisterUserRequest
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": "Invalid request data",
 		})
 	}
 	newUser := entity.User{
+		ID:       uuid.New().String(),
 		Name:     user.Name,
 		Email:    user.Email,
 		Password: user.Password,
@@ -62,28 +60,41 @@ func (h *UserHandler) RegisterUser(c echo.Context) error {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param credentials body map[string]string true "Email and Password"
-// @Success 200 {string} string "JWT Token"
+// @Param credentials body LoginRequest true "Email and Password"
+// @Success 200 {object} LoginResponse
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Router /users/login [post]
 func (h *UserHandler) LoginUser(c echo.Context) error {
-	var credentials map[string]string
+	var credentials LoginRequest
 	if err := c.Bind(&credentials); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": "Invalid request data",
 		})
 	}
 
-	email := credentials["email"]
-	password := credentials["password"]
-
-	token, err := h.userUseCase.Login(c.Request().Context(), email, password)
+	token, err := h.userUseCase.Login(c.Request().Context(), credentials.Email, credentials.Password)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 			"error": "Invalid credentials",
 		})
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"token": token})
+	return c.JSON(http.StatusOK, LoginResponse{Token: token})
+}
+
+type RegisterUserRequest struct {
+	Name     string `json:"name" example:"Fulano"`
+	Email    string `json:"email" example:"fulano.sobre@example.com"`
+	Password string `json:"password" example:"securepassword"`
+	Role     string `json:"role" example:"technician"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email" example:"john.doe@example.com"`
+	Password string `json:"password" example:"securepassword"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 }

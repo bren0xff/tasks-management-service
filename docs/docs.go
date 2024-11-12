@@ -71,12 +71,12 @@ const docTemplate = `{
                 "summary": "Create a new task",
                 "parameters": [
                     {
-                        "description": "Task Data",
-                        "name": "task",
+                        "description": "Task Input Data",
+                        "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.Task"
+                            "$ref": "#/definitions/http.CreateTaskRequest"
                         }
                     }
                 ],
@@ -124,18 +124,15 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/http.LoginRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "JWT Token",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/http.LoginResponse"
                         }
                     },
                     "400": {
@@ -170,12 +167,12 @@ const docTemplate = `{
                 "summary": "Register a new user",
                 "parameters": [
                     {
-                        "description": "User Data",
+                        "description": "User Data (excluding ID)",
                         "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.User"
+                            "$ref": "#/definitions/http.RegisterUserRequest"
                         }
                     }
                 ],
@@ -188,6 +185,13 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -205,13 +209,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "summary": {
                     "type": "string"
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -222,13 +226,69 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
                 "role": {
                     "type": "string"
+                }
+            }
+        },
+        "http.CreateTaskRequest": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string",
+                    "example": "2024-11-12"
+                },
+                "summary": {
+                    "type": "string",
+                    "example": "Fix server issue"
+                }
+            }
+        },
+        "http.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "securepassword"
+                }
+            }
+        },
+        "http.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+            }
+        },
+        "http.RegisterUserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "fulano.sobre@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Fulano"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "securepassword"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "technician"
                 }
             }
         }
