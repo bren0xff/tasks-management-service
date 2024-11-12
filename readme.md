@@ -108,7 +108,7 @@ Access the API documentation at `http://localhost:8080/swagger/index.html`.
 `POST /users/login`
   ```json
   {
-    "email": "john.doe@example.com",
+    "email": "fulano.tal@example.com",
     "password": "securepassword"
   }
   ```
