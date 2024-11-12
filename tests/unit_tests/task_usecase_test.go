@@ -72,7 +72,6 @@ func TestTaskUseCase_CreateTask(t *testing.T) {
 
 	wg.Wait()
 
-	// Validações
 	mockUserRepo.AssertCalled(t, "GetUserByID", mock.Anything, "123")
 	mockTaskRepo.AssertCalled(t, "CreateTask", mock.Anything, task)
 	mockNotifier.AssertCalled(t, "NotifyManager", user, task)
