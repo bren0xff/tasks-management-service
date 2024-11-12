@@ -18,12 +18,22 @@ func SeedUsers(db *gorm.DB) error {
 	}
 
 	for _, user := range users {
-		user.Password = HashPassword(user.Password)
-		if err := db.Create(&user).Error; err != nil {
-			log.Printf("Failed to insert user %s: %v", user.Email, err)
-			return err
+		var existingUser entity.User
+		if err := db.Where("email = ?", user.Email).First(&existingUser).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				user.Password = HashPassword(user.Password)
+				if err := db.Create(&user).Error; err != nil {
+					log.Printf("Failed to insert user %s: %v", user.Email, err)
+					return err
+				}
+				log.Printf("User %s inserted successfully", user.Email)
+			} else {
+				log.Printf("Error checking user %s: %v", user.Email, err)
+				return err
+			}
+		} else {
+			log.Printf("User %s already exists, skipping...", user.Email)
 		}
-		log.Printf("User %s inserted successfully", user.Email)
 	}
 	return nil
 }
