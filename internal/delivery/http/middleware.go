@@ -40,7 +40,7 @@ func AuthMiddleware(jwtSecret string) echo.MiddlewareFunc {
 			}
 
 			user := &entity.User{
-				ID:   int64(claims["user_id"].(float64)),
+				ID:   claims["user_id"].(string),
 				Role: claims["role"].(string),
 			}
 

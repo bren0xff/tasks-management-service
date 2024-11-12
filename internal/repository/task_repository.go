@@ -7,5 +7,5 @@ import (
 
 type TaskRepository interface {
 	CreateTask(ctx context.Context, task *entity.Task) error
-	GetTasks(ctx context.Context, userID int64, role string) ([]*entity.Task, error)
+	GetTasks(ctx context.Context, userID string, role string) ([]*entity.Task, error)
 }

@@ -24,21 +24,36 @@ func NewUserHandler(e *echo.Echo, userUseCase usecase.UserUseCase) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body entity.User true "User Data"
+// @Param user body entity.User true "User Data (excluding ID)"
 // @Success 201 {object} entity.User
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Router /users/register [post]
 func (h *UserHandler) RegisterUser(c echo.Context) error {
-	var user entity.User
+	var user struct {
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		Role     string `json:"role"`
+	}
 	if err := c.Bind(&user); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid request data",
+		})
 	}
-	err := h.userUseCase.CreateUser(c.Request().Context(), &user)
+	newUser := entity.User{
+		Name:     user.Name,
+		Email:    user.Email,
+		Password: user.Password,
+		Role:     user.Role,
+	}
+	err := h.userUseCase.CreateUser(c.Request().Context(), &newUser)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
 	}
-	user.Password = ""
-	return c.JSON(http.StatusCreated, user)
+	newUser.Password = ""
+	return c.JSON(http.StatusCreated, newUser)
 }
 
 // LoginUser godoc
@@ -55,7 +70,9 @@ func (h *UserHandler) RegisterUser(c echo.Context) error {
 func (h *UserHandler) LoginUser(c echo.Context) error {
 	var credentials map[string]string
 	if err := c.Bind(&credentials); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid request data",
+		})
 	}
 
 	email := credentials["email"]
@@ -63,7 +80,9 @@ func (h *UserHandler) LoginUser(c echo.Context) error {
 
 	token, err := h.userUseCase.Login(c.Request().Context(), email, password)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"error": "Invalid credentials",
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"token": token})

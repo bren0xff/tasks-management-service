@@ -11,7 +11,7 @@ import (
 
 type TaskUseCase interface {
 	CreateTask(ctx context.Context, task *entity.Task) error
-	GetTasks(ctx context.Context, userID int64, role string) ([]*entity.Task, error)
+	GetTasks(ctx context.Context, userID string, role string) ([]*entity.Task, error)
 }
 
 type taskUseCase struct {
@@ -36,6 +36,6 @@ func (uc *taskUseCase) CreateTask(ctx context.Context, task *entity.Task) error 
 	return nil
 }
 
-func (uc *taskUseCase) GetTasks(ctx context.Context, userID int64, role string) ([]*entity.Task, error) {
+func (uc *taskUseCase) GetTasks(ctx context.Context, userID string, role string) ([]*entity.Task, error) {
 	return uc.taskRepo.GetTasks(ctx, userID, role)
 }

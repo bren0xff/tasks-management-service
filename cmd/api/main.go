@@ -1,19 +1,18 @@
 package main
 
 import (
-	"log"
-	"os"
-	repository "tasksManagement/internal/repository/impl"
-
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
-	echoSwagger "github.com/swaggo/echo-swagger"
+	"log"
+	"os"
+	_ "tasksManagement/docs"
 	"tasksManagement/internal/delivery/http"
 	"tasksManagement/internal/entity"
 	"tasksManagement/internal/notifier"
+	repository "tasksManagement/internal/repository/impl"
 	"tasksManagement/internal/usecase"
 	"tasksManagement/pkg/queue"
 )

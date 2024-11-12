@@ -19,7 +19,7 @@ func (r *taskRepository) CreateTask(ctx context.Context, task *entity.Task) erro
 	return r.db.Create(task).Error
 }
 
-func (r *taskRepository) GetTasks(ctx context.Context, userID int64, role string) ([]*entity.Task, error) {
+func (r *taskRepository) GetTasks(ctx context.Context, userID string, role string) ([]*entity.Task, error) {
 	var tasks []*entity.Task
 	if role == "manager" {
 		err := r.db.Find(&tasks).Error
