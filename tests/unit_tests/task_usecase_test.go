@@ -19,8 +19,13 @@ func (m *MockTaskRepository) CreateTask(ctx context.Context, task *entity.Task) 
 	return args.Error(0)
 }
 
-func (m *MockTaskRepository) GetTasks(ctx context.Context, userID string, role string) ([]*entity.Task, error) {
-	args := m.Called(ctx, userID, role)
+func (m *MockTaskRepository) GetAllTasks(ctx context.Context) ([]*entity.Task, error) {
+	args := m.Called(ctx)
+	return args.Get(0).([]*entity.Task), args.Error(1)
+}
+
+func (m *MockTaskRepository) GetTasksByUserID(ctx context.Context, userID string) ([]*entity.Task, error) {
+	args := m.Called(ctx, userID)
 	return args.Get(0).([]*entity.Task), args.Error(1)
 }
 
@@ -43,14 +48,18 @@ func TestTaskUseCase_CreateTask(t *testing.T) {
 	task := &entity.Task{
 		ID:      "1",
 		Summary: "Test Task",
-		UserID:  "123",
+	}
+
+	user := &entity.User{
+		ID:   "123",
+		Role: entity.RoleTechnician,
 	}
 
 	mockRepo.On("CreateTask", mock.Anything, task).Return(nil)
 	wg.Add(1)
 	mockNotifier.On("NotifyManager", task).Return()
 
-	err := taskUC.CreateTask(context.Background(), task)
+	err := taskUC.CreateTask(context.Background(), task, *user)
 	require.NoError(t, err)
 	wg.Wait()
 
