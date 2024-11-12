@@ -1,13 +1,14 @@
 services:
   api:
     build:
-      context: docker
       dockerfile: Dockerfile
     ports:
       - "${SERVER_PORT}:8080"
     depends_on:
-      - mysql
-      - rabbitmq
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     env_file:
       - .env
     environment:
@@ -19,25 +20,30 @@ services:
     networks:
       - app-network
   mysql:
-    image: mysql:8.0
+    image: mysql:9.1.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: tasks
-      MYSQL_USER: managementUser
-      MYSQL_PASSWORD: managementPassword
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "managementUser", "-pmanagementPassword" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:4.0.3-management
     restart: always
     environment:
-      RABBITMQ_DEFAULT_USER: managementUser
-      RABBITMQ_DEFAULT_PASS: managementPassword
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -45,6 +51,11 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   app-network:

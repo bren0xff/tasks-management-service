@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	repository "tasksManagement/internal/repository/impl"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -13,11 +14,18 @@ import (
 	"tasksManagement/internal/delivery/http"
 	"tasksManagement/internal/entity"
 	"tasksManagement/internal/notifier"
-	"tasksManagement/internal/repository"
 	"tasksManagement/internal/usecase"
 	"tasksManagement/pkg/queue"
 )
 
+// @title Tasks Management API
+// @version 1.0
+// @description This is a REST API for managing tasks performed by technicians and managers.
+// @host localhost:8080
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -45,12 +53,14 @@ func main() {
 	}
 
 	taskRepo := repository.NewTaskRepository(db)
-	notifier := notifier.NewNotifier(q)
-	taskUseCase := usecase.NewTaskUseCase(taskRepo, notifier)
-
+	newNotifier := notifier.NewNotifier(q)
+	taskUseCase := usecase.NewTaskUseCase(taskRepo, newNotifier)
+	userRepo := repository.NewUserRepository(db)
+	userUseCase := usecase.NewUserUseCase(userRepo, jwtSecret)
 	e := echo.New()
 
 	http.NewTaskHandler(e, taskUseCase, jwtSecret)
+	http.NewUserHandler(e, userUseCase)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 

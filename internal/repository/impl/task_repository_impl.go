@@ -1,16 +1,17 @@
-package repository
+package impl
 
 import (
 	"context"
 	"gorm.io/gorm"
 	"tasksManagement/internal/entity"
+	"tasksManagement/internal/repository"
 )
 
 type taskRepository struct {
 	db *gorm.DB
 }
 
-func NewTaskRepository(db *gorm.DB) TaskRepository {
+func NewTaskRepository(db *gorm.DB) repository.TaskRepository {
 	return &taskRepository{db}
 }
 

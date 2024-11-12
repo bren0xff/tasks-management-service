@@ -28,8 +28,8 @@ func NewTaskHandler(e *echo.Echo, tu usecase.TaskUseCase, jwtSecret string) {
 // @Produce json
 // @Param task body entity.Task true "Task Data"
 // @Success 201 {object} entity.Task
-// @Failure 400 {object} echo.HTTPError
-// @Failure 401 {object} echo.HTTPError
+// @Failure 400 {object} map[string]interface{} "Bad Request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Router /tasks [post]
 // @Security BearerAuth
 func (h *TaskHandler) CreateTask(c echo.Context) error {
@@ -52,7 +52,7 @@ func (h *TaskHandler) CreateTask(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200 {array} entity.Task
-// @Failure 401 {object} echo.HTTPError
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Router /tasks [get]
 // @Security BearerAuth
 func (h *TaskHandler) GetTasks(c echo.Context) error {
