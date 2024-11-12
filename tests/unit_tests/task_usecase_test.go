@@ -76,3 +76,38 @@ func TestTaskUseCase_CreateTask(t *testing.T) {
 	mockTaskRepo.AssertCalled(t, "CreateTask", mock.Anything, task)
 	mockNotifier.AssertCalled(t, "NotifyManager", user, task)
 }
+
+func TestTaskUseCase_GetTasks_Manager(t *testing.T) {
+	mockRepo := new(MockTaskRepository)
+	taskUC := usecase.NewTaskUseCase(mockRepo, nil, nil)
+
+	managerRole := entity.RoleManager
+	mockTasks := []*entity.Task{
+		{ID: "1", Summary: "Task 1", UserID: "123"},
+		{ID: "2", Summary: "Task 2", UserID: "124"},
+	}
+
+	mockRepo.On("GetAllTasks", mock.Anything).Return(mockTasks, nil)
+
+	tasks, err := taskUC.GetTasks(context.Background(), "manager-id", managerRole)
+	require.NoError(t, err)
+	require.Equal(t, len(mockTasks), len(tasks))
+	mockRepo.AssertCalled(t, "GetAllTasks", mock.Anything)
+}
+
+func TestTaskUseCase_GetTasks_Technician(t *testing.T) {
+	mockRepo := new(MockTaskRepository)
+	taskUC := usecase.NewTaskUseCase(mockRepo, nil, nil)
+
+	technicianRole := entity.RoleTechnician
+	mockTasks := []*entity.Task{
+		{ID: "1", Summary: "Task 1", UserID: "technician-id"},
+	}
+
+	mockRepo.On("GetTasksByUserID", mock.Anything, "technician-id").Return(mockTasks, nil)
+
+	tasks, err := taskUC.GetTasks(context.Background(), "technician-id", technicianRole)
+	require.NoError(t, err)
+	require.Equal(t, len(mockTasks), len(tasks))
+	mockRepo.AssertCalled(t, "GetTasksByUserID", mock.Anything, "technician-id")
+}
