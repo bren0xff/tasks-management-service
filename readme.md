@@ -89,6 +89,19 @@ JWT_SECRET=1243c0ad9f1f2bf5be4f6b310fe2b53394ad2339f5d80407e3d00cab61b2290d
 
 Access the API documentation at `http://localhost:8080/swagger/index.html`.
 
+## Test Users
+
+The database seed includes the following predefined users for testing purposes:
+
+| Name             | Email                  | Password         | Role         |
+|-------------------|------------------------|------------------|--------------|
+| Carlos Manager    | carlos@example.com     | manager123       | Manager      |
+| João Manager      | joao@example.com       | manager123       | Manager      |
+| John Technician   | john.tech@example.com  | technician123    | Technician   |
+| Jane Technician   | jane.tech@example.com  | technician123    | Technician   |
+
+These users can be used to test role-specific functionality, such as task assignment and restricted access to endpoints.
+
 #### Example Requests
 
 - **Register User**:

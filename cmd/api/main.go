@@ -11,6 +11,7 @@ import (
 	_ "tasksManagement/docs"
 	"tasksManagement/internal/delivery/http"
 	"tasksManagement/internal/entity"
+	"tasksManagement/internal/migrations"
 	"tasksManagement/internal/notifier"
 	repository "tasksManagement/internal/repository/impl"
 	"tasksManagement/internal/usecase"
@@ -45,6 +46,10 @@ func main() {
 	err = db.AutoMigrate(&entity.Task{}, &entity.User{})
 	if err != nil {
 		log.Fatal("Error performing database migrations:", err)
+	}
+
+	if err := migrations.SeedUsers(db); err != nil {
+		log.Fatalf("Failed to seed users: %v", err)
 	}
 
 	q, err := queue.NewRabbitMQ(rabbitmqURL)
