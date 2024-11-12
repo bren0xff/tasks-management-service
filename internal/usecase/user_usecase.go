@@ -45,7 +45,6 @@ func (uc *userUseCase) Login(ctx context.Context, email, password string) (strin
 		return "", errors.New("invalid credentials")
 	}
 
-	// Generate JWT
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
 		"role":    user.Role,
