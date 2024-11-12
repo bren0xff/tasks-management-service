@@ -29,25 +29,32 @@ func (m *MockTaskRepository) GetTasksByUserID(ctx context.Context, userID string
 	return args.Get(0).([]*entity.Task), args.Error(1)
 }
 
+func (m *MockUserRepository) GetUserByID(ctx context.Context, userID string) (*entity.User, error) {
+	args := m.Called(ctx, userID)
+	return args.Get(0).(*entity.User), args.Error(1)
+}
+
 type MockNotifier struct {
 	mock.Mock
 	wg *sync.WaitGroup
 }
 
-func (m *MockNotifier) NotifyManager(task *entity.Task) {
-	m.Called(task)
+func (m *MockNotifier) NotifyManager(user *entity.User, task *entity.Task) {
+	m.Called(user, task)
 	m.wg.Done()
 }
 
 func TestTaskUseCase_CreateTask(t *testing.T) {
-	mockRepo := new(MockTaskRepository)
+	mockTaskRepo := new(MockTaskRepository)
+	mockUserRepo := new(MockUserRepository)
 	wg := &sync.WaitGroup{}
 	mockNotifier := &MockNotifier{wg: wg}
-	taskUC := usecase.NewTaskUseCase(mockRepo, mockNotifier)
+	taskUC := usecase.NewTaskUseCase(mockTaskRepo, mockUserRepo, mockNotifier)
 
 	task := &entity.Task{
 		ID:      "1",
 		Summary: "Test Task",
+		UserID:  "123",
 	}
 
 	user := &entity.User{
@@ -55,14 +62,18 @@ func TestTaskUseCase_CreateTask(t *testing.T) {
 		Role: entity.RoleTechnician,
 	}
 
-	mockRepo.On("CreateTask", mock.Anything, task).Return(nil)
+	mockUserRepo.On("GetUserByID", mock.Anything, "123").Return(user, nil)
+	mockTaskRepo.On("CreateTask", mock.Anything, task).Return(nil)
 	wg.Add(1)
-	mockNotifier.On("NotifyManager", task).Return()
+	mockNotifier.On("NotifyManager", user, task).Return()
 
-	err := taskUC.CreateTask(context.Background(), task, *user)
+	err := taskUC.CreateTask(context.Background(), task)
 	require.NoError(t, err)
+
 	wg.Wait()
 
-	mockRepo.AssertCalled(t, "CreateTask", mock.Anything, task)
-	mockNotifier.AssertCalled(t, "NotifyManager", task)
+	// Validações
+	mockUserRepo.AssertCalled(t, "GetUserByID", mock.Anything, "123")
+	mockTaskRepo.AssertCalled(t, "CreateTask", mock.Anything, task)
+	mockNotifier.AssertCalled(t, "NotifyManager", user, task)
 }
