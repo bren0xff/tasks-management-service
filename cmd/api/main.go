@@ -25,6 +25,7 @@ import (
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
+// @description Use the format: Bearer <token>
 func main() {
 	err := godotenv.Load()
 	if err != nil {

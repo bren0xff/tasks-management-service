@@ -192,6 +192,7 @@ paths:
       - users
 securityDefinitions:
   BearerAuth:
+    description: 'Use the format: Bearer <token>'
     in: header
     name: Authorization
     type: apiKey

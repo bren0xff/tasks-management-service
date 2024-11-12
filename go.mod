@@ -10,6 +10,7 @@ require (
 	github.com/streadway/amqp v1.1.0
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/echo-swagger v1.4.1
+	github.com/swaggo/files v1.0.1
 	github.com/swaggo/swag v1.16.4
 	golang.org/x/crypto v0.29.0
 	gorm.io/driver/mysql v1.5.7

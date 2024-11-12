@@ -43,9 +43,14 @@ func AuthMiddleware(jwtSecret string) echo.MiddlewareFunc {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid user_id claim"})
 			}
 
-			role, ok := claims["role"].(string)
+			roleStr, ok := claims["role"].(string)
 			if !ok {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid role claim"})
+			}
+
+			role := entity.Role(roleStr)
+			if !role.IsValid() {
+				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid role"})
 			}
 
 			user := &entity.User{

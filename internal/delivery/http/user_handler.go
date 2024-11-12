@@ -31,25 +31,41 @@ func NewUserHandler(e *echo.Echo, userUseCase usecase.UserUseCase) {
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
 // @Router /users/register [post]
 func (h *UserHandler) RegisterUser(c echo.Context) error {
-	var user RegisterUserRequest
-	if err := c.Bind(&user); err != nil {
+	var input struct {
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		Role     string `json:"role"`
+	}
+
+	if err := c.Bind(&input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": "Invalid request data",
 		})
 	}
+
+	role := entity.Role(input.Role)
+	if !role.IsValid() {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid role",
+		})
+	}
+
 	newUser := entity.User{
 		ID:       uuid.New().String(),
-		Name:     user.Name,
-		Email:    user.Email,
-		Password: user.Password,
-		Role:     user.Role,
+		Name:     input.Name,
+		Email:    input.Email,
+		Password: input.Password,
+		Role:     role,
 	}
+
 	err := h.userUseCase.CreateUser(c.Request().Context(), &newUser)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": err.Error(),
 		})
 	}
+
 	newUser.Password = ""
 	return c.JSON(http.StatusCreated, newUser)
 }

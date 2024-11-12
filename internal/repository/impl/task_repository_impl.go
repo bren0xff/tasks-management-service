@@ -19,12 +19,14 @@ func (r *taskRepository) CreateTask(ctx context.Context, task *entity.Task) erro
 	return r.db.Create(task).Error
 }
 
-func (r *taskRepository) GetTasks(ctx context.Context, userID string, role string) ([]*entity.Task, error) {
+func (r *taskRepository) GetAllTasks(ctx context.Context) ([]*entity.Task, error) {
 	var tasks []*entity.Task
-	if role == "manager" {
-		err := r.db.Find(&tasks).Error
-		return tasks, err
-	}
+	err := r.db.Find(&tasks).Error
+	return tasks, err
+}
+
+func (r *taskRepository) GetTasksByUserID(ctx context.Context, userID string) ([]*entity.Task, error) {
+	var tasks []*entity.Task
 	err := r.db.Where("user_id = ?", userID).Find(&tasks).Error
 	return tasks, err
 }
